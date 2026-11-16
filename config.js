@@ -23,7 +23,7 @@ window.LOVE = {
   //   1. Go to https://web3forms.com and enter YOUR email address.
   //   2. They email you an "access key". Paste it between the quotes below.
   // Leave "" to switch notifications off.
-  notifyKey: "",
+  notifyKey: "b74ba05d-3aa6-42c3-bd5a-78813b8b106b",
 
   // Optional song. Put an mp3 in the music folder and write e.g. "music/our-song.mp3".
   // Leave "" for no music.
