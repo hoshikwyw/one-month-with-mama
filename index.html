@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fbeee9">
+  <meta name="robots" content="noindex">
+  <title>For you ♥</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💌%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&family=Noto+Serif+Myanmar:wght@500;700&family=Playfair+Display:ital,wght@0,500;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="locked">
+
+  <!-- The envelope she opens first -->
+  <div class="gate" id="gate">
+    <p class="gate-note hand">a little something for</p>
+    <div class="envelope" id="envelope">
+      <div class="env-back"></div>
+      <div class="env-letter">
+        <span class="hand" id="gateName"></span>
+        <small>open me</small>
+      </div>
+      <div class="env-front"></div>
+      <div class="env-flap"></div>
+      <button class="seal" id="seal" aria-label="Open the envelope">
+        <svg viewBox="-1.4 -1.2 2.8 2.2" aria-hidden="true"><path d="M0 .8C-1.3-.1-.6-1 0-.35C.6-1 1.3-.1 0 .8Z"/></svg>
+      </button>
+    </div>
+    <p class="gate-hint">tap the seal</p>
+  </div>
+
+  <canvas id="heart3d" aria-hidden="true"></canvas>
+  <canvas id="sky" aria-hidden="true"></canvas>
+
+  <main>
+    <header class="hero">
+      <div class="heart-spot" id="spotHero" aria-hidden="true"></div>
+      <p class="hand eyebrow" id="heroTo"></p>
+      <h1 id="heroTitle"></h1>
+      <p class="hero-sub">We have been <em>us</em> for</p>
+      <div class="counter" aria-live="off">
+        <div><b id="cD">0</b><span>days</span></div>
+        <div><b id="cH">0</b><span>hours</span></div>
+        <div><b id="cM">0</b><span>minutes</span></div>
+        <div><b id="cS">0</b><span>seconds</span></div>
+      </div>
+      <a class="cue" href="#story"><span class="hand">follow the red thread</span><i></i></a>
+    </header>
+
+    <section id="story">
+      <div class="head">
+        <p class="hand eyebrow">chapter one</p>
+        <h2>How we got here</h2>
+        <p>They say two people meant for each other are tied by a red thread. This is ours so far.</p>
+      </div>
+      <div class="thread-wrap" id="threadWrap">
+        <svg class="thread" aria-hidden="true"><path class="ghost"/><path class="live"/></svg>
+        <div id="knots" aria-hidden="true"></div>
+        <ol id="timeline"></ol>
+      </div>
+      <p class="hand to-be-continued">…to be continued</p>
+    </section>
+
+    <section id="reasons">
+      <div class="head">
+        <p class="hand eyebrow">in case you ever wonder</p>
+        <h2>Why I love you</h2>
+      </div>
+      <div class="note-stack">
+        <button class="note" id="note" aria-live="polite">
+          <span class="note-n hand" id="noteN"></span>
+          <span class="note-t" id="noteT"></span>
+        </button>
+      </div>
+      <button class="btn ghost" id="noteNext">tell me another ♥</button>
+    </section>
+
+    <section id="letter">
+      <div class="head">
+        <p class="hand eyebrow">written for you</p>
+        <h2>A letter</h2>
+      </div>
+      <article class="paper hand" id="paper"></article>
+    </section>
+
+    <section id="future">
+      <div class="head">
+        <p class="hand eyebrow">the thread keeps going</p>
+        <h2>Still to come</h2>
+        <p>One month is only the first knot. Here is what we are walking toward.</p>
+      </div>
+      <div class="next">
+        <p class="next-label">Next monthsary</p>
+        <p class="next-date" id="nextDate"></p>
+        <div class="bar"><i id="nextBar"></i><span id="nextHeart">♥</span></div>
+        <p class="next-left hand" id="nextLeft"></p>
+      </div>
+      <div class="future-grid">
+        <div class="panel">
+          <h3>Milestones ahead</h3>
+          <ul class="miles" id="miles"></ul>
+        </div>
+        <div class="panel">
+          <h3>Our someday list</h3>
+          <ul class="dreams" id="dreams"></ul>
+          <form class="add" id="addDream">
+            <input id="dreamIn" type="text" maxlength="80" placeholder="Add a dream of ours…" aria-label="Add a dream">
+            <button class="btn small" type="submit">add</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="always">
+      <div class="heart-spot" id="spotEnd" aria-hidden="true"></div>
+      <p class="hand eyebrow">one last thing</p>
+      <h2 id="question"></h2>
+      <div class="answers" id="answers">
+        <button class="btn big" id="yes">Yes, always ♥</button>
+        <button class="btn ghost" id="no">No</button>
+      </div>
+      <p class="yes-msg" id="yesMsg" hidden></p>
+      <p class="hand sign" id="sign"></p>
+    </section>
+  </main>
+
+  <button class="music" id="music" hidden aria-label="Play or pause our song" aria-pressed="false">♪</button>
+
+  <dialog id="lightbox" aria-label="Photo"><img alt=""><p class="hand"></p></dialog>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="vendor/gsap.min.js"></script>
+  <script src="vendor/ScrollTrigger.min.js"></script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
