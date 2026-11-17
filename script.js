@@ -356,19 +356,67 @@
   say($('#gateName'), C.herName || 'you');
   document.title = `For ${C.herName || 'you'} ♥`;
 
-  const audio = C.music ? new Audio(C.music) : null;
+  /* ---------------- our song: YouTube theater, or an mp3 ----------------
+     One "media" object with play / pause / toggle, whichever source is set.
+     Sound can only start from a tap, so it starts on the envelope seal. */
   const musicBtn = $('#music');
-  if (audio) {
-    audio.loop = true; audio.volume = 0.6;
-    audio.addEventListener('error', () => { musicBtn.hidden = true; });
-    audio.addEventListener('play', () => { musicBtn.classList.add('playing'); musicBtn.setAttribute('aria-pressed', 'true'); });
-    audio.addEventListener('pause', () => { musicBtn.classList.remove('playing'); musicBtn.setAttribute('aria-pressed', 'false'); });
-    musicBtn.hidden = false;
-    musicBtn.addEventListener('click', () => (audio.paused ? audio.play().catch(() => {}) : audio.pause()));
-  }
+  const setPlaying = (on) => {
+    musicBtn.classList.toggle('playing', on);
+    musicBtn.setAttribute('aria-pressed', String(on));
+    if (on) musicBtn.classList.remove('nudge');
+  };
+  const media = (() => {
+    const id = (String(C.video || '').match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/) || [])[1];
+    if (id) {
+      const section = $('#theater'), fallback = $('#ytFallback');
+      section.hidden = false;
+      musicBtn.hidden = false;
+      if (C.theaterNote) say($('#theaterNote'), C.theaterNote); else $('#theaterNote').remove();
+      if (C.theaterCaption) say($('#theaterCaption'), C.theaterCaption); else $('#theaterCaption').remove();
+      fallback.href = 'https://www.youtube.com/watch?v=' + id;
+      let player = null, ready = false, wanted = false, playing = false;
+      const fail = () => { fallback.hidden = false; $('#ytPlayer').hidden = true; musicBtn.hidden = true; };
+      window.onYouTubeIframeAPIReady = () => {
+        player = new window.YT.Player('ytPlayer', {
+          videoId: id,
+          host: 'https://www.youtube.com',
+          playerVars: { playsinline: 1, rel: 0, modestbranding: 1, loop: 1, playlist: id, origin: location.origin },
+          events: {
+            onReady: () => { ready = true; if (wanted) player.playVideo(); },
+            onStateChange: (e) => { playing = e.data === 1 || e.data === 3; setPlaying(playing); },
+            onError: fail,
+          },
+        });
+      };
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      tag.onerror = fail;
+      document.head.append(tag);
+      const play = () => {
+        wanted = true;
+        if (ready) player.playVideo();
+        // some phones refuse sound that wasn't started by a tap on the video itself:
+        // if nothing is playing shortly after, invite her to tap the music button
+        setTimeout(() => { if (!playing && !musicBtn.hidden) musicBtn.classList.add('nudge'); }, 3500);
+      };
+      return { play, toggle: () => { if (!ready) return play(); if (playing) player.pauseVideo(); else player.playVideo(); } };
+    }
+    if (C.music) {
+      const audio = new Audio(C.music);
+      audio.loop = true; audio.volume = 0.6;
+      audio.addEventListener('error', () => { musicBtn.hidden = true; });
+      audio.addEventListener('play', () => setPlaying(true));
+      audio.addEventListener('pause', () => setPlaying(false));
+      musicBtn.hidden = false;
+      const play = () => audio.play().catch(() => musicBtn.classList.add('nudge'));
+      return { play, toggle: () => (audio.paused ? play() : audio.pause()) };
+    }
+    return null;
+  })();
+  if (media) musicBtn.addEventListener('click', media.toggle);
 
   function enter(instant) {
-    if (audio && !instant) audio.play().catch(() => {});
+    if (media && !instant) media.play(); // must run inside the tap itself
     if (!instant) {
       let seen = false;
       try { seen = sessionStorage.getItem('opened'); sessionStorage.setItem('opened', '1'); } catch (e) { /* ignore */ }

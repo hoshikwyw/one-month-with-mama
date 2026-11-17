@@ -402,3 +402,47 @@ section, .hero {
 @media (max-width: 360px) {
   #question:lang(my) { font-size: 1.3rem; }
 }
+
+/* ---------- theater (YouTube) ---------- */
+#theater {
+  max-width: none; position: relative; overflow: hidden; color: #fbe9e6;
+  background:
+    radial-gradient(60rem 26rem at 50% 0%, rgba(214, 69, 107, .35), transparent 70%),
+    linear-gradient(#2a0f18, #170810);
+}
+/* velvet curtains at the sides */
+#theater::before, #theater::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: clamp(18px, 7vw, 110px);
+  background: repeating-linear-gradient(90deg, #7d1228 0 10px, #a51b38 10px 22px, #6a0e21 22px 30px);
+  box-shadow: 0 0 40px rgba(0, 0, 0, .6);
+}
+#theater::before { left: 0; border-radius: 0 0 60% 0 / 0 0 12% 0; }
+#theater::after { right: 0; border-radius: 0 0 0 60% / 0 0 0 12%; }
+#theater .head h2 { color: #fff3ee; }
+#theater .head .eyebrow { color: #ff9db4; }
+#theater .head p:last-child:not(.eyebrow) { color: #e6bfc4; }
+.cinema { position: relative; z-index: 1; width: min(860px, 100% - clamp(36px, 14vw, 220px)); margin: 0 auto; }
+.bulbs { display: flex; justify-content: space-between; padding: 0 6px 12px; }
+.bulbs i { width: 9px; height: 9px; border-radius: 50%; background: #ffd27a; box-shadow: 0 0 10px 2px rgba(255, 200, 100, .8); animation: bulb 1.4s ease-in-out infinite; }
+.bulbs i:nth-child(even) { animation-delay: .7s; }
+@keyframes bulb { 50% { opacity: .35; box-shadow: none; } }
+.screen {
+  position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 14px; overflow: hidden;
+  border: 6px solid #3a1420; box-shadow: 0 0 0 2px #c49a5a, 0 30px 70px rgba(0, 0, 0, .65), 0 0 90px rgba(214, 69, 107, .35);
+}
+.screen iframe, .screen > div { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.screen-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-weight: 700; text-decoration: none; padding: 1rem; text-align: center; }
+.cinema-caption { margin-top: 1.2rem; font-size: 1.5rem; color: #ffb7c6; }
+.cinema-caption:lang(my) { font-size: 1.05rem; }
+@media (max-width: 719px) {
+  .screen { border-width: 4px; border-radius: 10px; }
+  .bulbs i:nth-child(n+9) { display: none; }
+}
+
+/* music button: icon + a "tap for our song" nudge when the phone blocked autoplay */
+.music { display: grid; place-items: center; padding: 0; }
+.music em { display: none; font-style: normal; }
+.music.nudge { width: auto; padding: 0 1.1rem 0 .9rem; display: flex; gap: .5rem; align-items: center; border-radius: 999px; background: var(--thread); color: #fff; animation: pulse 1.4s ease-in-out infinite; }
+.music.nudge em { display: inline; font-size: 1.25rem; white-space: nowrap; }
+.music.playing.nudge { animation: none; }
+.screen-fallback[hidden], .screen > [hidden] { display: none; }

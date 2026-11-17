@@ -86,6 +86,22 @@
       <article class="paper hand" id="paper"></article>
     </section>
 
+    <section id="theater" hidden>
+      <div class="head">
+        <p class="hand eyebrow">now showing</p>
+        <h2>Our little theater</h2>
+        <p id="theaterNote"></p>
+      </div>
+      <div class="cinema">
+        <div class="bulbs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="screen">
+          <div id="ytPlayer"></div>
+          <a class="screen-fallback" id="ytFallback" target="_blank" rel="noopener" hidden>▶ Watch our song on YouTube</a>
+        </div>
+        <p class="hand cinema-caption" id="theaterCaption"></p>
+      </div>
+    </section>
+
     <section id="future">
       <div class="head">
         <p class="hand eyebrow">the thread keeps going</p>
@@ -127,7 +143,7 @@
     </section>
   </main>
 
-  <button class="music" id="music" hidden aria-label="Play or pause our song" aria-pressed="false">♪</button>
+  <button class="music" id="music" hidden aria-label="Play or pause our song" aria-pressed="false"><span>♪</span><em class="hand">tap for our song</em></button>
 
   <dialog id="lightbox" aria-label="Photo"><img alt=""><p class="hand"></p></dialog>
 

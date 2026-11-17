@@ -25,7 +25,15 @@ window.LOVE = {
   // Leave "" to switch notifications off.
   notifyKey: "b74ba05d-3aa6-42c3-bd5a-78813b8b106b",
 
-  // Optional song. Put an mp3 in the music folder and write e.g. "music/our-song.mp3".
+  // ---- OUR THEATER (YouTube video) --------------------------------
+  // Paste any YouTube link. The video sits in the "Our little theater" section
+  // and its sound starts when she opens the envelope. Leave "" for no video.
+  video: "https://youtu.be/6UKA9nD6EmU",
+  // Optional lines shown above and below the screen ("" hides them).
+  theaterNote: "",
+  theaterCaption: "",
+
+  // Optional song. Used only when "video" above is empty. Put an mp3 in the music folder and write e.g. "music/our-song.mp3".
   // Leave "" for no music.
   music: "",
 
