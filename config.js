@@ -32,49 +32,60 @@ window.LOVE = {
   // ---- OUR STORY -------------------------------------------------
   // One block per memory, oldest first. Add as many as you like —
   // every month, add a new one and the thread grows longer.
-  // photo: put the image in the photos folder, e.g. "photos/01.jpg".
-  //        Leave "" and the emoji is shown instead.
+  //
+  // HOW TO ADD A PHOTO TO A MEMORY
+  //   1. Copy the image into the "photos" folder (next to this file).
+  //      Use a simple name with no spaces: 01.png, 02.jpg, first-date.jpg ...
+  //      jpg, jpeg, png, webp and gif all work.
+  //   2. In that memory's block, write the name after "photos/":
+  //          photo: "photos/02.jpg",
+  //      The name must match the file exactly, including .jpg / .png
+  //      and capital letters (IMG_1.JPG is not img_1.jpg).
+  //   3. Save this file and refresh the page.
+  //   Leave  photo: "",  and the emoji is shown instead.
+  //   The frame takes the shape of your picture, so nothing gets cut off,
+  //   and tapping a photo opens it larger.
   memories: [
     {
       date: "ပထမဆုံးတွေ့ဆုံခဲ့တဲ့နေ့",
-      title: "မမကို ပထမဆုံးစကားစပြောခဲ့တဲ့နေ့",
+      title: "မမနဲ့ ပထမဆုံးစကားစပြောခဲ့တဲ့နေ့",
       text: "အဲဒီနေ့တုန်းက မသိခဲ့ပေမယ့် အရာအားလုံးက တိတ်တိတ်လေး ပြောင်းလဲသွားခဲ့တယ်။ မမနဲ့ စကားဆက်ပြောချင်နေခဲ့တာကိုပဲ မှတ်မိနေတယ်။",
-      photo: "",
+      photo: "photos/01.png",
       emoji: "✨",
     },
     {
       date: "ပထမဆုံး အပြင်မှာတွေ့တဲ့နေ့",
       title: "သိပ်ပျော်လိုက်တာ ရင်တောင်တုန်တယ်",
       text: "ဘာပြောရမလဲ ကြိုတင်ပြင်ဆင်ထားခဲ့ပေမယ့် စောင့်နေရင်းနဲ့ပဲ လူက ရင်တွေတုန် မမ ပြုံးလိုက်တာနဲ့ အကုန်မေ့သွားတယ်။ အချိန်တွေက တကယ် ကုန်မြန်လွန်းခဲ့တယ်။ မမနဲ့ဆို အခုထိလည်း အဲလိုပါပဲ။",
-      photo: "",
+      photo: "photos/02.png",
       emoji: "☕",
     },
     {
       date: "၂၀၂၆ ခုနှစ်၊ အောက်တိုဘာ ၁ ရက်",
       title: "မမဘက်က ခိုင့်ကို ချစ်တယ်လို့ ပထမဆုံးပြောခဲ့တဲ့နေ့",
       text: "ခိုင့်ဘဝရဲ့ ငိုနေရင်းကနေ ပိုငိုရခက် ထပျော်ရခက် ခဲ့တဲ့ ညလေးပါ။ အဲဒီနေ့က နားလည်မှုတွေလွဲပြီး လက်လွှတ်ပေးရတော့မှာလားလို့ တွေးကြောက်ပြီး ငိုနေခဲ့တာ။ မမရဲ့ အဖြေက ခိုင့်ကို အားပေးပြီး အားလုံးကို ပြန်ပြေလည်စေခဲ့တယ်။",
-      photo: "",
+      photo: "photos/03.png",
       emoji: "💌",
     },
     {
       date: "အသေးအမွှားလေးတွေ",
       title: "မနက်ခင်းနဲ့ ညတိုင်း",
       text: "မမရဲ့ စာလေးတွေက ခိုင့်ရဲ့ တစ်နေ့တာမှာ ပထမဆုံးနဲ့ နောက်ဆုံး ဖြစ်လာခဲ့တယ်။ မသိလိုက်ခင်မှာပဲ မမက ခိုင့်ရဲ့ အကြိုက်ဆုံး အကျင့်လေး ဖြစ်သွားတယ်။",
-      photo: "",
+      photo: "photos/04.png",
       emoji: "🌙",
     },
     {
       date: "ခဏခဏ ပြန်သတိရတဲ့နေ့",
       title: "ခိုင်တို့ ပထမဆုံး အပြင်မှာ အတူတူ ထိုင်ခဲ့တဲ့နေ့",
       text: "အူကြောင်ကြား ခိုင့်ကို စိတ်ရှည်လက်ရှည်နဲ့ စောင့်ပေးတယ် ဖုန်းသုံးနေလို့ ပျင်းနေတာလား စိတ်ပျက်သွားပြီလား တယောက်ထဲ တွေးနေခဲ့တာ ဒါပေမယ့် ကောင်မလေးက ပုံခိုးရိုက်နေတာ ဖြစ်နေတယ်။ မိုးတွေရွာတော့ ကားမှတ်တိုင်မှာ လူကို ဂရုစိုက်ပေးတာကို ခိုင့်အရမ်း သဘောကျခဲ့တယ်။ ခိုင့်အပိုင်လေးဖြစ်လာရင် ကောင်းမယ်လို့ အဲ့နေ့ကစပြီး ကြိတ်ကြံနေခဲ့ရတာပါပဲ။",
-      photo: "",
+      photo: "photos/05.png",
       emoji: "🌸",
     },
     {
       date: "ဒီနေ့",
       title: "ခိုင်တို့နှစ်ယောက်ရဲ့ တစ်လပြည့်",
       text: "တရားဝင်ချစ်သူတွေဖြစ်တာ ရက်ပေါင်း သုံးဆယ်ကျော်ခဲ့ပြီ။ ပထမဆုံးနေ့ကထက် ပိုပြီးသေချာလာတယ်။ ဒါက ပထမဆုံး စာမျက်နှာလေးပဲ ရှိပါသေးတယ်။",
-      photo: "",
+      photo: "photos/06.png",
       emoji: "🎀",
     },
   ],

@@ -5,9 +5,58 @@
   const $ = (s, r = document) => r.querySelector(s);
   // Burmese text is tagged lang="my" so the CSS can give it Myanmar fonts and taller lines.
   const MY = /[က-႟ꩠ-ꩿ]/;
+  /* Burmese has no spaces between words, so browsers guess where a line may wrap,
+     and they guess differently (and sometimes inside a syllable). We decide instead:
+     the text is cut into syllables, and each "atom" below is an unbreakable box.
+       - a short phrase (the text between two spaces) stays together on one line
+       - a long phrase may wrap between syllables, but never strands a single
+         syllable at the start or end of a line
+     So: put a space where you would naturally pause, and lines break there first. */
+  const KEEP_TOGETHER = 8; // phrases up to this many syllables never wrap
+  const isCons = (c) => /[\u1000-\u1021\u1023-\u102A\u103F\u104C-\u104F]/.test(c);
+  function syllables(str) {
+    const ch = Array.from(str), out = [];
+    let cur = '';
+    for (let i = 0; i < ch.length; i++) {
+      const next = ch[i + 1];
+      const closesSyllable = next === '\u103A' || next === '\u1039' || (next === '\u1037' && ch[i + 2] === '\u103A');
+      const stacked = ch[i - 1] === '\u1039';
+      if (cur && isCons(ch[i]) && !closesSyllable && !stacked && /[\u1000-\u109F]/.test(cur)) { out.push(cur); cur = ''; }
+      cur += ch[i];
+    }
+    if (cur) out.push(cur);
+    return out;
+  }
+  // -> ['atom', ' ', 'atom', 'atom', ...]
+  function atomize(text) {
+    const out = [];
+    text.split(/(\s+)/).forEach((tok) => {
+      if (!tok) return;
+      if (/^\s+$/.test(tok)) return out.push(' ');
+      const syl = MY.test(tok) ? syllables(tok) : [tok];
+      if (syl.length <= KEEP_TOGETHER) return out.push(tok);
+      // a bare consonant (မ, အ, တ ...) is usually a prefix: keep it with the syllable after it
+      const glued = [];
+      for (let i = 0; i < syl.length; i++) {
+        if (Array.from(syl[i]).length === 1 && isCons(syl[i]) && i < syl.length - 1) { glued.push(syl[i] + syl[i + 1]); i++; }
+        else glued.push(syl[i]);
+      }
+      if (glued.length < 4) return out.push(tok);
+      out.push(glued[0] + glued[1], ...glued.slice(2, -2), glued[glued.length - 2] + glued[glued.length - 1]);
+    });
+    return out;
+  }
   const say = (node, text) => {
-    node.textContent = text;
-    if (MY.test(text)) node.lang = 'my'; else node.removeAttribute('lang');
+    if (!MY.test(text)) { node.textContent = text; node.removeAttribute('lang'); return; }
+    node.lang = 'my';
+    node.textContent = '';
+    atomize(text).forEach((a) => {
+      if (a === ' ') return node.append(' ');
+      const span = document.createElement('span');
+      span.className = 'ph';
+      span.textContent = a;
+      node.append(span);
+    });
   };
   // Split into whole characters; Burmese syllables must never be cut in the middle.
   const graphemes = (text) => (window.Intl && Intl.Segmenter
@@ -422,7 +471,13 @@
       const img = new Image();
       img.alt = mem.title || '';
       img.loading = 'lazy';
-      img.onload = buildThread;
+      img.onload = () => {
+        // the frame takes the photo's own shape (within limits) so nothing is cropped away
+        const ratio = img.naturalWidth / img.naturalHeight;
+        if (ratio) photo.style.aspectRatio = String(clamp(ratio, 0.72, 2.8));
+        photo.classList.add('has-img');
+        buildThread();
+      };
       img.onerror = () => img.remove();
       img.onclick = () => {
         $('img', lightbox).src = img.src;
@@ -536,28 +591,36 @@
   /* ---------------- letter (typewriter) ---------------- */
   (() => {
     const paper = $('#paper');
-    const lines = (C.letter || []).map((text) => {
-      const p = el('p'), typed = el('span'), rest = el('span', 'rest', text), chars = graphemes(text);
-      if (MY.test(text)) p.lang = 'my';
-      p.append(typed, rest);
+    // every paragraph becomes a row of small pieces, each with a typed and a not-yet-typed half
+    const queue = [];
+    (C.letter || []).forEach((text) => {
+      const my = MY.test(text), p = el('p');
+      if (my) p.lang = 'my';
+      (my ? atomize(text) : [text]).forEach((a) => {
+        if (a === ' ') return p.append(' ');
+        const box = el('span', my ? 'ph' : ''), typed = el('span'), rest = el('span', 'rest');
+        rest.textContent = a;
+        box.append(typed, rest);
+        p.append(box);
+        queue.push({ text: a, typed, rest, chars: graphemes(a), my });
+      });
+      if (queue.length) queue[queue.length - 1].endOfParagraph = true;
       paper.append(p);
-      return { text, typed, rest, chars };
     });
     paper.append(el('p', 'from', `— ${C.yourName || 'me'}`));
-    const p_my = (l) => MY.test(l.text);
-    const done = () => lines.forEach((l) => { l.typed.textContent = l.text; l.rest.textContent = ''; l.typed.classList.remove('caret'); });
+    const done = () => queue.forEach((q) => { q.typed.textContent = q.text; q.rest.textContent = ''; q.typed.classList.remove('caret'); });
     if (reduce) return done();
     paper.addEventListener('reveal', () => {
-      let li = 0, ci = 0;
+      let qi = 0, ci = 0;
       (function type() {
-        const l = lines[li];
-        if (!l) return;
-        l.typed.classList.add('caret');
+        const q = queue[qi];
+        if (!q) return;
+        q.typed.classList.add('caret');
         ci++;
-        l.typed.textContent = l.chars.slice(0, ci).join('');
-        l.rest.textContent = l.chars.slice(ci).join('');
-        let wait = /[.,!?—…။၊]/.test(l.chars[ci - 1]) ? 260 : (p_my(l) ? 45 : 26);
-        if (ci >= l.chars.length) { l.typed.classList.remove('caret'); li++; ci = 0; wait = 500; }
+        q.typed.textContent = q.chars.slice(0, ci).join('');
+        q.rest.textContent = q.chars.slice(ci).join('');
+        let wait = /[.,!?—…။၊]/.test(q.chars[ci - 1]) ? 260 : (q.my ? 45 : 26);
+        if (ci >= q.chars.length) { q.typed.classList.remove('caret'); qi++; ci = 0; if (q.endOfParagraph) wait = 500; }
         setTimeout(type, wait);
       })();
     });

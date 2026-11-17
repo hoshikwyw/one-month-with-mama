@@ -392,3 +392,13 @@ section, .hero {
 .btn:lang(my) { line-height: 1.7; padding-top: .6rem; padding-bottom: .6rem; }
 .btn.big:lang(my) { font-size: 1.05rem; padding: .7rem 1.6rem; }
 #lightbox p:lang(my) { font-size: 1.1rem; }
+
+/* real photos: hide the placeholder emoji behind them and keep small screenshots crisp */
+.photo.has-img { font-size: 0; background: #f3e4e0; }
+
+/* Burmese line-breaking: each .ph is one unbreakable piece (see atomize() in script.js).
+   A piece only wraps inside itself if it is wider than a whole line. */
+.ph { display: inline-block; max-width: 100%; white-space: normal; }
+@media (max-width: 360px) {
+  #question:lang(my) { font-size: 1.3rem; }
+}
