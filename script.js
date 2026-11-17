@@ -365,53 +365,89 @@
     musicBtn.setAttribute('aria-pressed', String(on));
     if (on) musicBtn.classList.remove('nudge');
   };
+  function mp3Player() {
+    if (!C.music) return null;
+    const audio = new Audio(C.music);
+    audio.loop = true; audio.volume = 0.6;
+    audio.addEventListener('error', () => { musicBtn.hidden = true; });
+    audio.addEventListener('play', () => setPlaying(true));
+    audio.addEventListener('pause', () => setPlaying(false));
+    musicBtn.hidden = false;
+    const play = () => audio.play().catch(() => musicBtn.classList.add('nudge'));
+    return { play, toggle: () => (audio.paused ? play() : audio.pause()) };
+  }
   const media = (() => {
     const id = (String(C.video || '').match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/) || [])[1];
-    if (id) {
-      const section = $('#theater'), fallback = $('#ytFallback');
-      section.hidden = false;
-      musicBtn.hidden = false;
-      if (C.theaterNote) say($('#theaterNote'), C.theaterNote); else $('#theaterNote').remove();
-      if (C.theaterCaption) say($('#theaterCaption'), C.theaterCaption); else $('#theaterCaption').remove();
-      fallback.href = 'https://www.youtube.com/watch?v=' + id;
-      let player = null, ready = false, wanted = false, playing = false;
-      const fail = () => { fallback.hidden = false; $('#ytPlayer').hidden = true; musicBtn.hidden = true; };
-      window.onYouTubeIframeAPIReady = () => {
-        player = new window.YT.Player('ytPlayer', {
-          videoId: id,
-          host: 'https://www.youtube.com',
-          playerVars: { playsinline: 1, rel: 0, modestbranding: 1, loop: 1, playlist: id, origin: location.origin },
-          events: {
-            onReady: () => { ready = true; if (wanted) player.playVideo(); },
-            onStateChange: (e) => { playing = e.data === 1 || e.data === 3; setPlaying(playing); },
-            onError: fail,
-          },
-        });
-      };
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      tag.onerror = fail;
-      document.head.append(tag);
-      const play = () => {
-        wanted = true;
-        if (ready) player.playVideo();
-        // some phones refuse sound that wasn't started by a tap on the video itself:
-        // if nothing is playing shortly after, invite her to tap the music button
-        setTimeout(() => { if (!playing && !musicBtn.hidden) musicBtn.classList.add('nudge'); }, 3500);
-      };
-      return { play, toggle: () => { if (!ready) return play(); if (playing) player.pauseVideo(); else player.playVideo(); } };
+    if (!id) return mp3Player();
+
+    const section = $('#theater'), fallback = $('#ytFallback'), slot = $('#ytPlayer');
+    section.hidden = false;
+    if (C.theaterNote) say($('#theaterNote'), C.theaterNote); else $('#theaterNote').remove();
+    if (C.theaterCaption) say($('#theaterCaption'), C.theaterCaption); else $('#theaterCaption').remove();
+    fallback.href = 'https://www.youtube.com/watch?v=' + id;
+
+    let backup = null; // the mp3, if the video cannot be used
+    const fail = (message) => {
+      slot.hidden = true;
+      const frame = $('.screen iframe'); if (frame) frame.remove();
+      if (message) fallback.textContent = message;
+      fallback.hidden = false;
+      musicBtn.hidden = true;
+      backup = backup || mp3Player();
+      if (backup && wanted) backup.play();
+    };
+    let player = null, ready = false, wanted = false, playing = false;
+
+    // YouTube refuses to play (Error 153) when the page is opened as a file from the
+    // computer, because it cannot tell which website is embedding it. It needs http(s).
+    if (location.protocol === 'file:') {
+      fail('The video and song only play once the site is online. To preview on this computer, double-click preview.bat.  ▶ Or watch on YouTube');
+      return { play: () => { wanted = true; if (backup) backup.play(); }, toggle: () => backup && backup.toggle() };
     }
-    if (C.music) {
-      const audio = new Audio(C.music);
-      audio.loop = true; audio.volume = 0.6;
-      audio.addEventListener('error', () => { musicBtn.hidden = true; });
-      audio.addEventListener('play', () => setPlaying(true));
-      audio.addEventListener('pause', () => setPlaying(false));
-      musicBtn.hidden = false;
-      const play = () => audio.play().catch(() => musicBtn.classList.add('nudge'));
-      return { play, toggle: () => (audio.paused ? play() : audio.pause()) };
-    }
-    return null;
+
+    musicBtn.hidden = false;
+    // We build the iframe ourselves so it always tells YouTube which site it is on
+    // (referrerpolicy + origin) — leaving those out is what triggers Error 153.
+    const frame = document.createElement('iframe');
+    frame.id = 'ytFrame';
+    frame.title = 'Our song';
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    frame.allowFullscreen = true;
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.src = 'https://www.youtube.com/embed/' + id + '?enablejsapi=1&playsinline=1&rel=0&loop=1&playlist=' + id +
+      '&origin=' + encodeURIComponent(location.origin);
+    slot.replaceWith(frame);
+
+    window.onYouTubeIframeAPIReady = () => {
+      player = new window.YT.Player('ytFrame', {
+        events: {
+          onReady: () => { ready = true; if (wanted) player.playVideo(); },
+          onStateChange: (e) => { playing = e.data === 1 || e.data === 3; setPlaying(playing); },
+          onError: () => fail(),
+        },
+      });
+    };
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    tag.onerror = () => fail();
+    document.head.append(tag);
+
+    const play = () => {
+      wanted = true;
+      if (backup) return backup.play();
+      if (ready) player.playVideo();
+      // some phones refuse sound that wasn't started by a tap on the video itself:
+      // if nothing is playing shortly after, invite her to tap the music button
+      setTimeout(() => { if (!playing && !backup && !musicBtn.hidden) musicBtn.classList.add('nudge'); }, 3500);
+    };
+    return {
+      play,
+      toggle: () => {
+        if (backup) return backup.toggle();
+        if (!ready) return play();
+        if (playing) player.pauseVideo(); else player.playVideo();
+      },
+    };
   })();
   if (media) musicBtn.addEventListener('click', media.toggle);
 
